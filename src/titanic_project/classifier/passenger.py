@@ -1,0 +1,16 @@
+#==========================================================================================
+# IMPORTS & MODULES
+#==========================================================================================
+
+from pydantic import BaseModel, Field
+
+#==========================================================================================
+# LOGISTIC REGRESSION: Passenger Class
+#==========================================================================================
+
+class PAssenger(BaseModel):
+    Pclass: int = Field(ge=1, le=3)
+    Sex: int = Field(ge=0, le=1)
+    Age: float = Field(ge=0)
+    SibSp: int = Field(default=0, ge=0)
+    Parch: int = Field(default=0, ge=0)
