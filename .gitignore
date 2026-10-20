@@ -104,6 +104,12 @@ ENV/
 env.bak/
 venv.bak/
 
+# Docker
+.dockerignore
+
+# Github Actions
+.github/
+
 # Spyder project settings
 .spyderproject
 .spyproject
