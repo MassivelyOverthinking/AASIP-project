@@ -18,8 +18,6 @@ def create_app(filepath: Path) -> Flask:
 
     classifier = TitanicClassifier(data_path=filepath)
 
-    app.extensions["classifier"] = classifier
-
     @app.post("/predict")
     def predict():
 
@@ -44,6 +42,6 @@ def create_app(filepath: Path) -> Flask:
 
     @app.get("/metrics")
     def metrics():
-        return jsonify(classifier.metrics)
+        return jsonify(classifier.diagnostics)
 
     return app

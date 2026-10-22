@@ -18,7 +18,7 @@ from sklearn.model_selection import train_test_split
 
 class TitanicClassifier:
 
-    __slots__ = ("data_path", "dataframe", "model", "metrics", "cm_matrix", "is_trained")
+    __slots__ = ("data_path", "dataframe", "model", "_diagnostics", "_cm_matrix", "is_trained")
 
     def __init__(
         self, 
@@ -27,11 +27,13 @@ class TitanicClassifier:
         self.data_path = Path(data_path)
         self.dataframe = None
         self.model = None
-        self.metrics = {}
-        self.cm_matrix = None
+        self._diagnostics = {}
+        self._cm_matrix = None
         self.is_trained = False
 
-    def setup(self, filepath: str | Path) -> None:
+        self._setup(self.data_path)
+
+    def _setup(self, filepath: str | Path) -> None:
         if not isinstance(filepath, (str, Path)):
             raise TypeError(f"Filepath must be Type: Str | Path - Found dtype: {type(filepath).__name__}")
 
@@ -40,7 +42,7 @@ class TitanicClassifier:
         self._load_data(filepath)
         X_train, X_test, y_train, y_test = self._process_data()
         y_pred = self._fit_model(X_train, X_test, y_train)
-        self._get_metrics(y_pred, y_test)
+        self._get_diagnostics(y_pred, y_test)
 
     def predict(self, passengers: list[dict]) -> list[dict]:
         if not self.is_trained:
@@ -65,18 +67,18 @@ class TitanicClassifier:
         ]
 
     @property
-    def metrics(self) -> dict[str, float]:
-        if self.metrics is None:
-            raise ValueError("No metrics found!")
+    def diagnostics(self) -> dict[str, float]:
+        if self._diagnostics is None:
+            raise ValueError("No diagnostics found!")
 
-        return self.metrics
+        return self._diagnostics.copy()
 
     @property
     def confusion_matrix(self) -> any:
-        if self.cm_matrix is None:
-            raise ValueError("No metrics found!")
+        if self._cm_matrix is None:
+            raise ValueError("No matrix found!")
     
-        return self.cm_matrix
+        return self._cm_matrix.copy()
 
     def _load_data(self, filepath: Path) -> None:
         self.data_path = filepath
@@ -121,15 +123,15 @@ class TitanicClassifier:
 
         return y_pred
 
-    def _get_metrics(self, y_pred, y_test):
+    def _get_diagnostics(self, y_pred, y_test):
 
-        metrics_dict: dict[str, float] = {}
-        metrics_dict.update({
+        diag_dict: dict[str, float] = {}
+        diag_dict.update({
             "Accuracy": accuracy_score(y_test, y_pred),
             "Precision": precision_score(y_test, y_pred, zero_division=0),
             "Recall": recall_score(y_test, y_pred, zero_division=0),
             "F1-Score": f1_score(y_test, y_pred, zero_division=0),
         })
 
-        self.cm_matrix = confusion_matrix(y_test, y_pred, labels=[0, 1])
-        self.metrics = metrics_dict
+        self._cm_matrix = confusion_matrix(y_test, y_pred, labels=[0, 1])
+        self._diagnostics = diag_dict

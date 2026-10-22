@@ -2,8 +2,8 @@
 # IMPORTS & MODULES
 # -----------------------------------------------------------------------------------------------------------------------
 
-from classifier import TitanicClassifier
-from passenger import Passenger
+from .classifier import TitanicClassifier
+from .passenger import Passenger
 
 # -----------------------------------------------------------------------------------------------------------------------
 # PACKAGE MANAGEMENT
