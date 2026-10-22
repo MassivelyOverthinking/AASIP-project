@@ -20,7 +20,7 @@ from sklearn.model_selection import train_test_split
 
 class TitanicClassifier:
 
-    __slots__ = ("data_path", "dataframe", "model", "metrics", "is_trained")
+    __slots__ = ("data_path", "dataframe", "model", "metrics", "cm_matrix", "is_trained")
 
     def __init__(
         self, 
@@ -30,19 +30,89 @@ class TitanicClassifier:
         self.dataframe = None
         self.model = None
         self.metrics = {}
+        self.cm_matrix = None
         self.is_trained = False
 
-    def setup(self):
-        pass
+    def setup(self, filepath: str | Path) -> None:
+        if not isinstance(filepath, (str, Path)):
+            raise TypeError(f"Filepath must be Type: Str | Path - Found dtype: {type(filepath).__name__}")
+
+        filepath = Path(filepath)
+
+        self._load_data(filepath)
+        X_train, X_test, y_train, y_test = self._process_data()
+        y_pred = self._fit_model(X_train, X_test, y_train)
+        self._get_metrics(y_pred, y_test)
 
     def predict(self) -> None:
         pass
 
-    def _load_data(self) -> None:
-        pass
+    @property
+    def metrics(self) -> dict[str, float]:
+        if self.metrics is None:
+            raise ValueError("No metrics found!")
+
+        return self.metrics
+
+    @property
+    def confusion_matrix(self) -> any:
+        if self.cm_matrix is None:
+            raise ValueError("No metrics found!")
+    
+        return self.cm_matrix
+
+    def _load_data(self, filepath: Path) -> None:
+        self.data_path = filepath
+        self.dataframe = pd.read_csv(filepath)
 
     def _process_data(self) -> None:
-        pass
+        if self.dataframe is None:
+            raise ValueError("Internal Dataframe not found.")
 
-    def _fit_model(self) -> None:
-        pass
+        self.dataframe.drop(columns=["PassengerId", "Name", "Ticket", "Cabin", "Fare", "Embarked"], inplace=True)
+
+        # Drop missing data rows ==> Used in the 'Age' column.
+        self.dataframe.dropna(inplace=True)
+
+        # Create X and Y test arrays.
+        X = self.dataframe.drop(columns=["Survival"])
+        y = self.dataframe["Survival"].astype(int)
+
+        X_train, X_test, y_train, y_test = train_test_split(
+            X, 
+            y, 
+            test_size=0.2, 
+            random_state=42, 
+            stratify=y
+        )
+
+        return X_train, X_test, y_train, y_test
+
+    def _fit_model(self, X_train, X_test, y_train):
+        if self.is_trained:
+            return ValueError("Internal model is already trained.")
+
+        self.model = LogisticRegression(
+            max_iter=2000, 
+            random_state=42
+        )
+
+        self.model.fit(X_train, y_train)
+        self.is_trained = True
+
+        y_pred = self.model.predict(X_test)  
+
+        return y_pred
+
+    def _get_metrics(self, y_pred, y_test):
+
+        metrics_dict: dict[str, float] = {}
+        metrics_dict.update({
+            "Accuracy": accuracy_score(y_test, y_pred),
+            "Precision": precision_score(y_test, y_pred, zero_division=0),
+            "Recall": recall_score(y_test, y_pred, zero_division=0),
+            "F1-Score": f1_score(y_test, y_pred, zero_division=0),
+        })
+
+        self.cm_matrix = confusion_matrix(y_test, y_pred, labels=[0, 1])
+        self.metrics = metrics_dict
