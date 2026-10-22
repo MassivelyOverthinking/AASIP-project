@@ -1,22 +1,20 @@
-#==========================================================================================
+# -----------------------------------------------------------------------------------------------------------------------
 # IMPORTS & MODULES
-#==========================================================================================
+# -----------------------------------------------------------------------------------------------------------------------
 
 import pandas as pd
-import numpy as np
 
 from pathlib import Path
 
 from sklearn.linear_model import LogisticRegression
 from sklearn.metrics import (
-    ConfusionMatrixDisplay, classification_report, confusion_matrix, accuracy_score, 
-    precision_score, recall_score, f1_score
+    confusion_matrix, accuracy_score, precision_score, recall_score, f1_score
 )
 from sklearn.model_selection import train_test_split
 
-#==========================================================================================
+# -----------------------------------------------------------------------------------------------------------------------
 # LOGISTIC REGRESSION: Custom Model
-#==========================================================================================
+# -----------------------------------------------------------------------------------------------------------------------
 
 class TitanicClassifier:
 
@@ -44,8 +42,27 @@ class TitanicClassifier:
         y_pred = self._fit_model(X_train, X_test, y_train)
         self._get_metrics(y_pred, y_test)
 
-    def predict(self) -> None:
-        pass
+    def predict(self, passengers: list[dict]) -> list[dict]:
+        if not self.is_trained:
+            raise RuntimeError("Classifier has not been trained.")
+
+        if not passengers:
+            return []
+
+        features = pd.DataFrame(passengers)
+
+        predictions = self.model.predict(features)
+        probabilities = self.model.predict_proba(features)[:, 1]
+
+        return [
+            {
+                "survived": int(pred),
+                "survival_probability": float(prob),
+            }
+            for pred, prob in zip(
+                predictions, probabilities
+            )
+        ]
 
     @property
     def metrics(self) -> dict[str, float]:
