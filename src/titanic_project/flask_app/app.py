@@ -44,4 +44,8 @@ def create_app(filepath: Path) -> Flask:
     def metrics():
         return jsonify(classifier.diagnostics)
 
+    @app.get("/")
+    def home():
+        return jsonify("Welcome! The ML appliation is working...")
+
     return app

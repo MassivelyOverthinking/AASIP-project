@@ -90,12 +90,16 @@ class TitanicClassifier:
 
         self.dataframe.drop(columns=["PassengerId", "Name", "Ticket", "Cabin", "Fare", "Embarked"], inplace=True)
 
-        # Drop missing data rows ==> Used in the 'Age' column.
         self.dataframe.dropna(inplace=True)
 
+        self.dataframe["Sex"] = self.dataframe["Sex"].map({
+            "male": 0,
+            "female": 1,
+        })
+
         # Create X and Y test arrays.
-        X = self.dataframe.drop(columns=["Survival"])
-        y = self.dataframe["Survival"].astype(int)
+        X = self.dataframe.drop(columns=["Survived"])
+        y = self.dataframe["Survived"].astype(int)
 
         X_train, X_test, y_train, y_test = train_test_split(
             X, 
