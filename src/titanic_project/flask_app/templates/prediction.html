@@ -1,0 +1,98 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Titanic Prediction Result</title>
+
+    <style>
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            margin: 0;
+            padding: 40px 20px;
+            font-family: Arial, sans-serif;
+            background-color: #f3f4f6;
+            color: #1f2937;
+        }
+
+        .container {
+            max-width: 600px;
+            margin: 0 auto;
+        }
+
+        .card {
+            background: #ffffff;
+            padding: 32px;
+            border-radius: 12px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.06);
+        }
+
+        h1 {
+            margin-top: 0;
+            color: #1d4ed8;
+        }
+
+        .status {
+            margin: 24px 0;
+            padding: 20px;
+            border-radius: 8px;
+            background: #eff6ff;
+            border-left: 4px solid #2563eb;
+        }
+
+        .status h2 {
+            margin-top: 0;
+            font-size: 20px;
+        }
+
+        .probability {
+            font-size: 18px;
+            font-weight: bold;
+        }
+
+        .button {
+            display: inline-block;
+            margin-top: 16px;
+            padding: 12px 18px;
+            border-radius: 7px;
+            background: #2563eb;
+            color: white;
+            text-decoration: none;
+            font-weight: bold;
+        }
+
+        .button:hover {
+            background: #1d4ed8;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <div class="card">
+            <h1>Titanic Prediction Result</h1>
+
+            <div class="status">
+                {% if prediction.survived == 1 %}
+                    <h2>Passenger predicted to survive</h2>
+                {% else %}
+                    <h2>Passenger predicted not to survive</h2>
+                {% endif %}
+
+                <p class="probability">
+                    Estimated survival probability:
+                    {{ "%.2f"|format(prediction.probability * 100) }}%
+                </p>
+            </div>
+
+            <a href="{{ url_for('home') }}" class="button">
+                Make Another Prediction
+            </a>
+        </div>
+    </div>
+</body>
+</html>

@@ -20,40 +20,46 @@ def create_app(filepath: Path) -> Flask:
 
     @app.post("/predict/log")
     def predict_cls():
-
-        payload = request.get_json(silent=True)      
-
-        if not isinstance(payload, dict):
-            return jsonify({
-                "error": "Expected a JSON object."
-            }), 400
-
         try:
+            payload = {
+                "Pclass": int(request.form["Pclass"]),
+                "Sex": int(request.form["Sex"]),
+                "Age": int(request.form["Age"]),
+                "SibSp": int(request.form["SibSp"]),
+                "Parch": int(request.form["Parch"]),
+            }
+
             prediction = classifier.predict_cls(passenger=payload)
             if prediction is None:
                 return jsonify("No prediction produced.")
 
-            return jsonify(prediction)
+            return render_template(
+                "prediction.html",
+                prediction=prediction
+            )
 
         except (ValueError, TypeError) as exc:
             return jsonify({"error": str(exc)}), 400
 
     @app.post("/predict/mlp")
     def predict_mlp():
-        
-        payload = request.get_json(silent=True)
-        
-        if not isinstance(payload, dict):
-            return jsonify({
-                "error": "Expected a JSON object."
-            }), 400
-        
         try:
+            payload = {
+                "Pclass": int(request.form["Pclass"]),
+                "Sex": int(request.form["Sex"]),
+                "Age": int(request.form["Age"]),
+                "SibSp": int(request.form["SibSp"]),
+                "Parch": int(request.form["Parch"]),
+            }
+
             prediction = classifier.predict_mlp(passenger=payload)
             if prediction is None:
                 return jsonify("No prediction produced.")
         
-            return jsonify(prediction)
+            return render_template(
+                "prediction.html",
+                prediction=prediction
+            )
         
         except (ValueError, TypeError) as exc:
             return jsonify({"error": str(exc)}), 400

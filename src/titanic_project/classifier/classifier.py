@@ -2,6 +2,8 @@
 # IMPORTS & MODULES
 # -----------------------------------------------------------------------------------------------------------------------
 
+import json
+
 import pandas as pd
 
 from pathlib import Path
@@ -66,10 +68,10 @@ class TitanicClassifier:
         if not passenger:
             raise RuntimeError("No Passenger data received.")
 
-        features = pd.DataFrame(passenger)
+        features = pd.DataFrame([passenger])
 
-        prediction = self.classifier.predict(features)
-        probability = self.classifier.predict_proba(features)[:, 1]
+        prediction = self.classifier.predict(features)[0]
+        probability = self.classifier.predict_proba(features)[0, 1]
 
         return {
             "survived": int(prediction),
@@ -83,10 +85,10 @@ class TitanicClassifier:
         if not passenger:
             raise RuntimeError("No Passenger data received.")
     
-        features = pd.DataFrame(passenger)
+        features = pd.DataFrame([passenger])
     
-        prediction = self.mlp.predict(features)
-        probability = self.mlp.predict_proba(features)[:, 1]
+        prediction = self.mlp.predict(features)[0]
+        probability = self.mlp.predict_proba(features)[0, 1]
     
         return {
             "survived": int(prediction),
