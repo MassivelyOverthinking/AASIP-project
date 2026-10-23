@@ -7,6 +7,8 @@ import pandas as pd
 from pathlib import Path
 
 from sklearn.linear_model import LogisticRegression
+from sklearn.neural_network import MLPClassifier
+
 from sklearn.metrics import (
     confusion_matrix, accuracy_score, precision_score, recall_score, f1_score
 )
@@ -18,7 +20,17 @@ from sklearn.model_selection import train_test_split
 
 class TitanicClassifier:
 
-    __slots__ = ("data_path", "dataframe", "model", "_diagnostics", "_cm_matrix", "is_trained")
+    __slots__ = (
+        "data_path", 
+        "dataframe", 
+        "classifier", 
+        "mlp", 
+        "_classifier_diagnostics", 
+        "_classifier_matrix", 
+        "_mlp_diagnostics", 
+        "_mlp_matrix",
+        "is_trained"
+    )
 
     def __init__(
         self, 
@@ -26,9 +38,12 @@ class TitanicClassifier:
     ) -> TitanicClassifier:
         self.data_path = Path(data_path)
         self.dataframe = None
-        self.model = None
-        self._diagnostics = {}
-        self._cm_matrix = None
+        self.classifier = None
+        self.mlp = None
+        self._classifier_diagnostics = {}
+        self._classifier_matrix = None
+        self._mlp_diagnostics = {}
+        self._mlp_matrix = None
         self.is_trained = False
 
         self._setup(self.data_path)
@@ -41,44 +56,70 @@ class TitanicClassifier:
 
         self._load_data(filepath)
         X_train, X_test, y_train, y_test = self._process_data()
-        y_pred = self._fit_model(X_train, X_test, y_train)
-        self._get_diagnostics(y_pred, y_test)
+        y_pred_cls, y_pred_mlp = self._fit_model(X_train, X_test, y_train)
+        self._get_diagnostics(y_pred_cls, y_pred_mlp, y_test)
 
-    def predict(self, passengers: list[dict]) -> list[dict]:
+    def predict_cls(self, passenger: dict) -> dict:
         if not self.is_trained:
             raise RuntimeError("Classifier has not been trained.")
 
-        if not passengers:
-            return []
+        if not passenger:
+            raise RuntimeError("No Passenger data received.")
 
-        features = pd.DataFrame(passengers)
+        features = pd.DataFrame(passenger)
 
-        predictions = self.model.predict(features)
-        probabilities = self.model.predict_proba(features)[:, 1]
+        prediction = self.classifier.predict(features)
+        probability = self.classifier.predict_proba(features)[:, 1]
 
-        return [
-            {
-                "survived": int(pred),
-                "survival_probability": float(prob),
-            }
-            for pred, prob in zip(
-                predictions, probabilities
-            )
-        ]
+        return {
+            "survived": int(prediction),
+            "probability": float(probability),
+        }
+
+    def predict_mlp(self, passenger: dict) -> dict:
+        if not self.is_trained:
+            raise RuntimeError("Classifier has not been trained.")
+    
+        if not passenger:
+            raise RuntimeError("No Passenger data received.")
+    
+        features = pd.DataFrame(passenger)
+    
+        prediction = self.mlp.predict(features)
+        probability = self.mlp.predict_proba(features)[:, 1]
+    
+        return {
+            "survived": int(prediction),
+            "probability": float(probability),
+        }
 
     @property
-    def diagnostics(self) -> dict[str, float]:
-        if self._diagnostics is None:
+    def diagnostics_cls(self) -> dict[str, float]:
+        if self._classifier_diagnostics is None:
             raise ValueError("No diagnostics found!")
 
-        return self._diagnostics.copy()
+        return self._classifier_diagnostics.copy()
 
     @property
-    def confusion_matrix(self) -> any:
-        if self._cm_matrix is None:
+    def diagnostics_mlp(self) -> dict[str, float]:
+        if self._mlp_diagnostics is None:
+            raise ValueError("No diagnostics found!")
+    
+        return self._mlp_diagnostics.copy()
+
+    @property
+    def cls_matrix(self) -> any:
+        if self._classifier_matrix is None:
             raise ValueError("No matrix found!")
     
-        return self._cm_matrix.copy()
+        return self._classifier_matrix.copy().tolist()
+
+    @property
+    def mlp_matrix(self) -> any:
+        if self._mlp_matrix is None:
+            raise ValueError("No matrix found!")
+        
+        return self._mlp_matrix.copy().tolist()
 
     def _load_data(self, filepath: Path) -> None:
         self.data_path = filepath
@@ -115,27 +156,46 @@ class TitanicClassifier:
         if self.is_trained:
             return ValueError("Internal model is already trained.")
 
-        self.model = LogisticRegression(
+        self.classifier = LogisticRegression(
             max_iter=2000, 
             random_state=42
         )
 
-        self.model.fit(X_train, y_train)
+        self.mlp = MLPClassifier(
+            max_iter=2000,
+            random_state=42
+        )
+
+        self.classifier.fit(X_train, y_train)
+        self.mlp.fit(X_train, y_train)
         self.is_trained = True
 
-        y_pred = self.model.predict(X_test)  
+        y_pred_classifier = self.classifier.predict(X_test) 
+        y_pred_mlp = self.mlp.predict(X_test) 
 
-        return y_pred
+        return y_pred_classifier, y_pred_mlp
 
-    def _get_diagnostics(self, y_pred, y_test):
+    def _get_diagnostics(self, y_pred_classifier, y_pred_mlp, y_test):
 
-        diag_dict: dict[str, float] = {}
-        diag_dict.update({
-            "Accuracy": accuracy_score(y_test, y_pred),
-            "Precision": precision_score(y_test, y_pred, zero_division=0),
-            "Recall": recall_score(y_test, y_pred, zero_division=0),
-            "F1-Score": f1_score(y_test, y_pred, zero_division=0),
+        classifier_dict: dict[str, float] = {}
+        mlp_dict: dict[str, float] = {}
+
+        classifier_dict.update({
+            "Accuracy": round(accuracy_score(y_test, y_pred_classifier), 2),
+            "Precision": round(precision_score(y_test, y_pred_classifier, zero_division=0), 2),
+            "Recall": round(recall_score(y_test, y_pred_classifier, zero_division=0), 2),
+            "F1-Score": round(f1_score(y_test, y_pred_classifier, zero_division=0), 2),
         })
 
-        self._cm_matrix = confusion_matrix(y_test, y_pred, labels=[0, 1])
-        self._diagnostics = diag_dict
+        mlp_dict.update({
+            "Accuracy": round(accuracy_score(y_test, y_pred_mlp), 2),
+            "Precision": round(precision_score(y_test, y_pred_mlp, zero_division=0), 2),
+            "Recall": round(recall_score(y_test, y_pred_mlp, zero_division=0), 2),
+            "F1-Score": round(f1_score(y_test, y_pred_mlp, zero_division=0), 2),
+        })
+
+        self._classifier_matrix = confusion_matrix(y_test, y_pred_classifier, labels=[0, 1])
+        self._mlp_matrix = confusion_matrix(y_test, y_pred_mlp, labels=[0, 1])
+
+        self._classifier_diagnostics = classifier_dict
+        self._mlp_diagnostics = mlp_dict

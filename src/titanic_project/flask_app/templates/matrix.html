@@ -1,0 +1,201 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Confusion Matrix</title>
+
+    <style>
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: Arial, sans-serif;
+            background: #f4f6f9;
+            color: #263238;
+            margin: 0;
+            padding: 40px 20px;
+        }
+
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+        }
+
+        h1 {
+            text-align: center;
+            margin-bottom: 8px;
+        }
+
+        .subtitle {
+            text-align: center;
+            color: #64748b;
+            margin-bottom: 32px;
+        }
+
+        .matrix-card {
+            background: white;
+            padding: 28px;
+            border-radius: 12px;
+            box-shadow: 0 3px 12px rgba(0, 0, 0, 0.06);
+            overflow-x: auto;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: separate;
+            border-spacing: 8px;
+            text-align: center;
+        }
+
+        th, td {
+            padding: 20px 16px;
+            border-radius: 8px;
+        }
+
+        th {
+            background: #f1f5f9;
+            font-size: 14px;
+            font-weight: 600;
+        }
+
+        td {
+            font-size: 24px;
+            font-weight: bold;
+            min-width: 80px;
+        }
+
+        .axis-label {
+            background: transparent;
+            color: #64748b;
+            font-size: 13px;
+            font-weight: normal;
+        }
+
+        .correct {
+            background: #dbeafe;
+            color: #1d4ed8;
+        }
+
+        .incorrect {
+            background: #fee2e2;
+            color: #b91c1c;
+        }
+
+        .legend {
+            display: flex;
+            justify-content: center;
+            flex-wrap: wrap;
+            gap: 24px;
+            margin-top: 24px;
+            color: #64748b;
+            font-size: 14px;
+        }
+
+        .legend-item {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .legend-color {
+            width: 14px;
+            height: 14px;
+            border-radius: 4px;
+        }
+
+        .correct-key {
+            background: #dbeafe;
+        }
+
+        .incorrect-key {
+            background: #fee2e2;
+        }
+
+        .footer {
+            text-align: center;
+            margin-top: 24px;
+            color: #64748b;
+            font-size: 14px;
+        }
+
+        @media (max-width: 480px) {
+            .matrix-card {
+                padding: 12px;
+            }
+
+            th, td {
+                padding: 12px 8px;
+            }
+
+            td {
+                font-size: 20px;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <main class="container">
+        <h1>Confusion Matrix</h1>
+
+        <p class="subtitle">
+            Actual versus predicted classifications
+        </p>
+
+        <section class="matrix-card">
+            <table>
+                <thead>
+                    <tr>
+                        <th rowspan="2" class="axis-label">
+                            Actual
+                        </th>
+
+                        <th colspan="{{ labels|length }}">
+                            Predicted class
+                        </th>
+                    </tr>
+
+                    <tr>
+                        {% for label in labels %}
+                            <th>{{ label }}</th>
+                        {% endfor %}
+                    </tr>
+                </thead>
+
+                <tbody>
+                    {% for row in matrix %}
+                        <tr>
+                            <th>{{ labels[loop.index0] }}</th>
+
+                            {% for value in row %}
+                                <td class="{% if loop.index0 == loop.index %}correct{% else %}incorrect{% endif %}">
+                                    {{ value }}
+                                </td>
+                            {% endfor %}
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+
+            <div class="legend">
+                <div class="legend-item">
+                    <span class="legend-color correct-key"></span>
+                    Correct predictions
+                </div>
+
+                <div class="legend-item">
+                    <span class="legend-color incorrect-key"></span>
+                    Incorrect predictions
+                </div>
+            </div>
+        </section>
+
+        <p class="footer">
+            Rows represent actual classes; columns represent predicted classes.
+        </p>
+    </main>
+</body>
+</html>

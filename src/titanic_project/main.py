@@ -4,8 +4,6 @@
 
 from pathlib import Path
 
-from flask import jsonify
-
 from titanic_project.flask_app import create_app
 
 # -----------------------------------------------------------------------------------------------------------------------
