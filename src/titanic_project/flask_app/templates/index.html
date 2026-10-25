@@ -23,6 +23,45 @@
             margin: 0 auto;
         }
 
+        /* Navigation tabs */
+        .tabs {
+            display: flex;
+            gap: 4px;
+            margin-bottom: 16px;
+            padding: 5px;
+            background-color: #e5e7eb;
+            border-radius: 10px;
+        }
+
+        .tab {
+            flex: 1;
+            padding: 11px 8px;
+            text-align: center;
+            text-decoration: none;
+            color: #4b5563;
+            font-size: 13px;
+            font-weight: 600;
+            border-radius: 7px;
+            transition: background-color 0.2s ease,
+                        color 0.2s ease;
+        }
+
+        .tab:hover {
+            background-color: #d1d5db;
+            color: #1f2937;
+        }
+
+        .tab.active {
+            background-color: #ffffff;
+            color: #1d4ed8;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
+        }
+
+        .tab:focus-visible {
+            outline: 2px solid #2563eb;
+            outline-offset: 2px;
+        }
+
         .card {
             background-color: #ffffff;
             padding: 32px;
@@ -114,8 +153,22 @@
         }
 
         @media (max-width: 480px) {
+            body {
+                padding: 24px 12px;
+            }
+
             .card {
                 padding: 24px 20px;
+            }
+
+            .tabs {
+                flex-wrap: wrap;
+            }
+
+            .tab {
+                flex: 1 1 28%;
+                font-size: 12px;
+                padding: 10px 5px;
             }
 
             .button-group {
@@ -127,6 +180,33 @@
 
 <body>
     <div class="container">
+
+        <!-- Navigation -->
+        <nav class="tabs" aria-label="Main navigation">
+
+            <a href="/" class="tab active" aria-current="page">
+                Prediction
+            </a>
+
+            <a href="/matrix/log" class="tab">
+                Log Matrix
+            </a>
+
+            <a href="/matrix/mlp" class="tab">
+                MLP Matrix
+            </a>
+
+            <a href="/metrics/log" class="tab">
+                Log Metrics
+            </a>
+
+            <a href="/metrics/mlp" class="tab">
+                MLP Metrics
+            </a>
+
+        </nav>
+
+        <!-- Original prediction card -->
         <div class="card">
             <h1>Titanic Survival Prediction</h1>
 
@@ -136,8 +216,10 @@
             </p>
 
             <form method="POST">
+
                 <div class="form-group">
                     <label for="pclass">Passenger Class</label>
+
                     <select id="pclass" name="Pclass" required>
                         <option value="1">1st Class</option>
                         <option value="2">2nd Class</option>
@@ -147,6 +229,7 @@
 
                 <div class="form-group">
                     <label for="sex">Sex</label>
+
                     <select id="sex" name="Sex" required>
                         <option value="0">Male</option>
                         <option value="1">Female</option>
@@ -155,6 +238,7 @@
 
                 <div class="form-group">
                     <label for="age">Age</label>
+
                     <input
                         type="number"
                         id="age"
@@ -169,6 +253,7 @@
 
                 <div class="form-group">
                     <label for="sibsp">Number of Siblings / Spouses</label>
+
                     <input
                         type="number"
                         id="sibsp"
@@ -183,6 +268,7 @@
 
                 <div class="form-group">
                     <label for="parch">Number of Parents / Children</label>
+
                     <input
                         type="number"
                         id="parch"
@@ -196,6 +282,7 @@
                 </div>
 
                 <div class="button-group">
+
                     <button
                         type="submit"
                         class="mlp-button"
@@ -211,6 +298,7 @@
                     >
                         Predict with CLS
                     </button>
+
                 </div>
             </form>
 

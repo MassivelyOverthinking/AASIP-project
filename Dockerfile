@@ -1,27 +1,32 @@
-FROM ghcr.io/astral-sh/uv:python3.12-bookworm-slim
 
-# Set the working directory inside the container
+# Use a lightweight Python base image
+FROM python:3.12-slim
+
+# Install uv from the official image
+COPY --from=ghcr.io/astral-sh/uv:latest /uv /uvx /bin/
+
+# Configure Python and uv
+ENV PYTHONDONTWRITEBYTECODE=1 \
+    PYTHONUNBUFFERED=1 \
+    UV_PROJECT_ENVIRONMENT=/app/.venv \
+    UV_LINK_MODE=copy \
+    PATH="/app/.venv/bin:$PATH" \
+    PYTHONPATH="/app/src"
+
 WORKDIR /app
 
-# Configure UV
-ENV UV_COMPILE_BYTECODE=1 \
-    UV_LINK_MODE=copy \
-    PYTHONUNBUFFERED=1
-
-# Copy dependency definitions first for better layer caching
+# Install dependencies first to improve build caching
 COPY pyproject.toml uv.lock ./
 
-# Install dependencies without installing the project itself
-RUN uv sync --frozen 
+RUN uv sync --frozen --no-dev --no-install-project
 
-# Copy the application source code
-COPY . .
+# Copy application source, templates and data
+COPY src/ ./src/
 
-# Add the virtual environment to PATH
-ENV PATH="/app/.venv/bin:$PATH"
+# Flask listens on port 8001
+EXPOSE 8001
 
-# Document the port used by Flask
-EXPOSE 5000
+# Run the application as a Python module
+CMD ["python", "-m", "titanic_project.main"]
 
-# Run the Flask application
-CMD ["python", "-m", "flask", "--app", "titanic_project.main", "run", "--host=0.0.0.0", "--port=5000"]
+
