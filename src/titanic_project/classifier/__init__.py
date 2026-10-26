@@ -3,7 +3,6 @@
 # -----------------------------------------------------------------------------------------------------------------------
 
 from .classifier import TitanicClassifier
-from .passenger import Passenger
 
 # -----------------------------------------------------------------------------------------------------------------------
 # PACKAGE MANAGEMENT
@@ -11,5 +10,4 @@ from .passenger import Passenger
 
 __all__= [
     "TitanicClassifier",
-    "Passenger"
 ]

@@ -29,12 +29,6 @@
             margin-bottom: 8px;
         }
 
-        .subtitle {
-            text-align: center;
-            color: #64748b;
-            margin-bottom: 32px;
-        }
-
         .matrix-card {
             background: white;
             padding: 28px;
@@ -68,8 +62,7 @@
         }
 
         .axis-label {
-            background: transparent;
-            color: #64748b;
+            color: #013071;
             font-size: 13px;
             font-weight: normal;
         }
@@ -84,41 +77,12 @@
             color: #b91c1c;
         }
 
-        .legend {
-            display: flex;
-            justify-content: center;
-            flex-wrap: wrap;
-            gap: 24px;
-            margin-top: 24px;
-            color: #64748b;
-            font-size: 14px;
-        }
-
-        .legend-item {
-            display: flex;
-            align-items: center;
-            gap: 8px;
-        }
-
-        .legend-color {
-            width: 14px;
-            height: 14px;
-            border-radius: 4px;
-        }
-
         .correct-key {
             background: #dbeafe;
         }
 
         .incorrect-key {
             background: #fee2e2;
-        }
-
-        .footer {
-            text-align: center;
-            margin-top: 24px;
-            color: #64748b;
-            font-size: 14px;
         }
 
         @media (max-width: 480px) {
@@ -140,10 +104,6 @@
 <body>
     <main class="container">
         <h1>Confusion Matrix</h1>
-
-        <p class="subtitle">
-            Actual versus predicted classifications
-        </p>
 
         <section class="matrix-card">
             <table>
@@ -179,23 +139,7 @@
                     {% endfor %}
                 </tbody>
             </table>
-
-            <div class="legend">
-                <div class="legend-item">
-                    <span class="legend-color correct-key"></span>
-                    Correct predictions
-                </div>
-
-                <div class="legend-item">
-                    <span class="legend-color incorrect-key"></span>
-                    Incorrect predictions
-                </div>
-            </div>
         </section>
-
-        <p class="footer">
-            Rows represent actual classes; columns represent predicted classes.
-        </p>
     </main>
 </body>
 </html>
