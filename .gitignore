@@ -76,9 +76,6 @@ ipython_config.py
 
 Pipfile.lock
 
-# uv
-uv.lock
-
 # pdm
 #   Similar to Pipfile.lock, it is generally recommended to include pdm.lock in version control.
 #   pdm recommends including project-wide configuration in pdm.toml, but excluding .pdm-python.
